@@ -7,6 +7,7 @@
 </p>
 
 > A text based RPG,created entirely on Java!
+> Currently working only on console!
 
 ## Author
 
