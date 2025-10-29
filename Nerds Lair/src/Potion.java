@@ -9,6 +9,6 @@ public class Potion extends Item {
     @Override
     public void use(Player p) {
         p.heal(healAmount);
-        System.out.println(p.getName() + " a folosit potiunea și a castigat " + healAmount + " HP!");
+        System.out.println(p.getName() + " used potion and heals: " + healAmount + " HP!");
     }
 }

@@ -14,7 +14,7 @@ public class Enemy {
     public void takeDamage(int dmg){
         hp -= dmg;
         if(hp<0) hp=0;
-        System.out.println(  name + "∩༼˵☯‿☯˵༽つ¤=[]:::::> "+ " a primit "+dmg+" damage! HP: "+hp);
+        System.out.println(  name + "∩༼˵☯‿☯˵༽つ¤=[]:::::> "+ " received "+dmg+" damage! HP: "+hp);
     }
 
     public int getAttack(){return attack;}

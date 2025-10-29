@@ -9,10 +9,10 @@ public class ChestEvent extends Event {
         Random rand = new Random();
         int drop = rand.nextInt(100);
 
-        String MARO = "\u001B[38;5;94m"; // maro închis (ANSI 256 colors)
+        String MARO = "\u001B[38;5;94m"; // Dark Brown (ANSI 256 colors)
         String RESET = "\u001B[0m";
 
-        System.out.println("Ai gasit un cufar!");
+        System.out.println("You found a Chest!");
         System.out.println(MARO +"""
                                                         ██▓▓▓▓▓▓░░░░▓▓░░░░░░▓▓▓▓▓▓░░▓▓██▓▓██▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░██
                                                    ██________░░██____▓▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██▒▒____██
@@ -41,7 +41,7 @@ public class ChestEvent extends Event {
                           ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░██
                              ▓▓████████████████████▓▓████▓▓██████████████▓▓██████████████▓▓██████████████████                                                                                                       
                 """+RESET);
-        System.out.println("Se deschide......");
+        System.out.println("The Chest opens....");
 
         try {
             Thread.sleep(2000);
@@ -50,20 +50,20 @@ public class ChestEvent extends Event {
         }
 
         if (drop < 40) {
-            Item potion = new Potion(" 🍺Potiune de viata🍺", 20);
+            Item potion = new Potion(" 🍺Health Potion🍺", 20);
             p.addItem(potion);
-            System.out.println("Ai gasit o potiune de viata ! (+20 HP)");
+            System.out.println("You found a Health Potion! (+20 HP)");
         } else if (drop < 70) {
-            Weapon w = new Weapon("⚔ 🔥Sabie de Foc 🔥⚔ ", 5);
+            Weapon w = new Weapon("⚔ 🔥Fire Sword 🔥⚔ ", 5);
             p.addItem(w);
-            System.out.println("Ai gasit arma: " + w.getName());
+            System.out.println("You found Weapon: " + w.getName());
         } else if (drop < 90) {
-            Armor a = new Armor("🛡 Scut de Otel 🛡 ", 10);
+            Armor a = new Armor("🛡 Steel Shield 🛡 ", 10);
             p.addItem(a);
-            System.out.println("Ai gasit armura: " + a.getName());
+            System.out.println("You found Armor: " + a.getName());
         } else {
             p.addExp(10);
-            System.out.println("Ai gasit 10 XP!");
+            System.out.println("You found 10 XP!");
         }
     }
 }

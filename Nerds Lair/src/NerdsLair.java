@@ -25,10 +25,10 @@ public class NerdsLair{
                 ==================================================
                 """+RESET);
 
-        System.out.print("Introdu numele personajului: ");
+        System.out.print("Type a name for your Hero!: ");
         String name = sc.nextLine();
 
-        System.out.println("Alege clasa:");
+        System.out.println("Choose your Class:");
         System.out.println("1. Warrior");
         System.out.println("2. Archer");
         int choice = sc.nextInt();
@@ -39,7 +39,7 @@ public class NerdsLair{
             player = new Archer(name);
         }
 
-        System.out.println("Bun venit, " + player.getName() + "!");
+        System.out.println("Welcome " + player.getName() + "!");
         mainMenu();
     }
 
@@ -48,12 +48,12 @@ public class NerdsLair{
         boolean running = true;
 
         while (running) {
-            System.out.println("\n=== MENIU PRINCIPAL ===");
-            System.out.println("1. Exploreaza");
-            System.out.println("2. Vezi inventarul");
-            System.out.println("3. Statistici");
-            System.out.println("4. Iesire");
-            System.out.print("Alege: ");
+            System.out.println("\n=== MENU ===");
+            System.out.println("1. Explore");
+            System.out.println("2. Inventoryl");
+            System.out.println("3. Statistics");
+            System.out.println("4. Exit");
+            System.out.print("Choose: ");
             int choice = sc.nextInt();
 
             switch (choice) {
@@ -62,9 +62,9 @@ public class NerdsLair{
                 case 3 -> System.out.println(player);
                 case 4 -> {
                     running = false;
-                    System.out.println("Jocul s-a inchis.");
+                    System.out.println("The game has closed!.");
                 }
-                default -> System.out.println("Opțiune invalida.");
+                default -> System.out.println("Invalid Option.");
             }
         }
     }

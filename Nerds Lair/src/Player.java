@@ -57,32 +57,32 @@ public abstract class Player {
 
     public void equipWeapon(Weapon w) {
         this.equippedWeapon = w;
-        System.out.println(name + " a echipat arma: " + w.getName());
+        System.out.println(name + " You equipped Weapon: " + w.getName());
     }
 
     public void equipArmor(Armor a) {
         this.equippedArmor = a;
-        System.out.println(name + " a echipat armura: " + a.getName());
+        System.out.println(name + " You equipped Armor: " + a.getName());
     }
 
 
     public void addItem(Item i) {
         inventory.add(i);
-        System.out.println(name + " a primit " + i.getName());
+        System.out.println(name + " received " + i.getName());
     }
 
     public void showInventory() {
-        System.out.println("\n=== INVENTARUL LUI " + name + " ===");
+        System.out.println("\n===" + name +"'s "+"INVENTORY ===");
         if (inventory.isEmpty()) {
-            System.out.println("Inventar gol.");
+            System.out.println("Inventory is empty.");
             return;
         }
         for (int i = 0; i < inventory.size(); i++) {
             Item item = inventory.get(i);
             String type = "";
-            if (item instanceof Weapon) type = " [Arma]";
-            else if (item instanceof Armor) type = " [Armura]";
-            else if (item instanceof Potion) type = " [Potiune]";
+            if (item instanceof Weapon) type = " [Weapon]";
+            else if (item instanceof Armor) type = " [Armor]";
+            else if (item instanceof Potion) type = " [Potion]";
             System.out.println((i + 1) + ". " + item.getName() + type);
         }
     }
@@ -90,7 +90,7 @@ public abstract class Player {
 
     public void useItem(int index) {
         if (index < 0 || index >= inventory.size()) {
-            System.out.println("Index invalid!");
+            System.out.println("Invalid index!");
             return;
         }
 
@@ -99,7 +99,7 @@ public abstract class Player {
             item.use(this);
             inventory.remove(index);
         } else {
-            System.out.println("Poti folosi doar potiuni cu aceasta opțiune!");
+            System.out.println("You can only use potions with this option!");
         }
     }
 
@@ -108,9 +108,9 @@ public abstract class Player {
 
     @Override
     public String toString() {
-        String weapon = (equippedWeapon != null) ? equippedWeapon.getName() : "Nicio arma";
-        String armor = (equippedArmor != null) ? equippedArmor.getName() : "Nicio armura";
+        String weapon = (equippedWeapon != null) ? equippedWeapon.getName() : "No Weapon";
+        String armor = (equippedArmor != null) ? equippedArmor.getName() : "No Armor";
         return name + " [HP: " + hp + ", Mana: " + mana + ", Exp: " + exp +
-                ", Dex: " + dexterity + ", Arma: " + weapon + ", Armura: " + armor + "]";
+                ", Dex: " + dexterity + ", Weapon: " + weapon + ", Armor: " + armor + "]";
     }
 }
