@@ -1,13 +1,22 @@
-public class Weapon extends Item {
-    private int damageBoost;
+import java.util.Set;
+import java.io.Serializable;
 
-    public Weapon(String name, int damageBoost) {
-        super(name);
+public class Weapon extends Item implements Serializable {
+    private final int damageBoost;
+    private final Rarity rarity;
+
+    public Weapon(String name, int damageBoost, Rarity rarity, Set<PlayerClass> compatibleClasses) {
+        super(name, compatibleClasses);
         this.damageBoost = damageBoost;
+        this.rarity = rarity;
     }
 
     public int getDamageBoost() {
         return damageBoost;
+    }
+
+    public Rarity getRarity() {
+        return rarity;
     }
 
     @Override

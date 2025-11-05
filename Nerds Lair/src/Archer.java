@@ -1,13 +1,13 @@
 public class Archer extends Player {
     public Archer(String name) {
-        super(name, 100, 60, 5);
+        super(name, 100, 100, 3,PlayerClass.ARCHER);
     }
 
     @Override
-    public void attack(Mob m) {
+    public int attack(Mob m) {
         int damage = 18;
         if (equippedWeapon != null) damage += equippedWeapon.getDamageBoost();
         m.takeDamage(damage);
-        System.out.println(" ∩༼˵☯‿☯˵༽つ¤=[]:::::>  " + name + " attacks " + m.getName() + " and deals " + damage + " damage!");
+        return damage;
     }
 }

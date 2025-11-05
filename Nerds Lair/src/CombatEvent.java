@@ -1,19 +1,49 @@
 import java.util.Random;
-import java.util.Scanner;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import java.util.List;
+import javax.sound.sampled.Clip;
+import java.awt.event.ActionListener;
+import javax.swing.SwingUtilities;
+import javax.swing.JFrame;
 
 public class CombatEvent extends Event {
-    private Mob enemy;
-    private int escapeChance = 80; // sansa de fuga
-    private Random rand = new Random();
+    private final Mob enemy;
+    private int escapeChance = 80;
+    private final Random rand = new Random();
+
+    private GameScreenForm gameScreen;
+    private Player currentPlayer;
+
+    private Clip combatMusic;
+    private Clip previousBackgroundClip;
+
+
+    private ActionListener backToCombatMenuListener;
+
+
+    public void setBackgroundClip(Clip clip) {
+        this.previousBackgroundClip = clip;
+    }
 
     public CombatEvent() {
         super("An enemy appears!");
         Mob[] mobs = {
-                new Mob(" 👺 Goblin 👺", 80, 10, 20),
-                new Mob("🧙🏼 Dark Wizard 🧙🏼", 75, 15, 25),
-                new Mob("🦴 Skeleton 🦴", 40,  5, 15),
-                new Mob("🤪  Dwarf 🤪", 60, 10, 18),
-                new Mob(" 🦴🚩 Skeleton General 🚩🦴 ", 100, 20, 30)
+                new Mob(" Goblin ", 80, 10, 20),
+                new Mob(" Dark Wizard ", 75, 15, 25),
+                new Mob(" Skeleton ", 40, 5, 15),
+                new Mob(" Dwarf ", 60, 10, 18),
+                new Mob(" Skeleton General ", 100, 20, 30),
+                new Mob(" Goblin Archer ", 50, 12, 8),
+                new Mob(" Ice Elemental ", 95, 16, 22),
+                new Mob(" Giant Spider ", 70, 14, 10),
+                new Mob(" Armored Knight ", 130, 17, 35),
+                new Mob(" Fire Imp ", 35, 10, 5),
+                new Mob(" Mountain Troll ", 180, 30, 25),
+                new Mob(" Apprentice Mage ", 65, 18, 12),
+                new Mob(" Swamp Lizard ", 85, 13, 16),
+                new Mob(" Wraith ", 60, 20, 10),
+                new Mob(" Royal Guard ", 110, 20, 25),
         };
         this.enemy = mobs[rand.nextInt(mobs.length)];
     }
@@ -24,205 +54,378 @@ public class CombatEvent extends Event {
     }
 
     @Override
-    public void trigger(Player p) {
-        String RESET = "\u001B[0m";
-        String RED = "\u001B[31m";
-        Scanner sc = new Scanner(System.in);
+    public void trigger(Player p, GameScreenForm screen) {
+        this.currentPlayer = p;
+        this.gameScreen = screen;
 
-        while (!enemy.isDead() && p.getHp() > 0) {
-            showInterface(p, enemy);
 
-            int choice = sc.nextInt();
-            boolean consumesShift = false;
+        if (previousBackgroundClip != null) {
+            SoundManager.stopMusic(previousBackgroundClip);
+        }
 
-            switch (choice) {
-                case 1: //attack sys
-                    p.attack(enemy);
-                    consumesShift = true;
-                    if (enemy.isDead()) {
-                        showInterface(p, enemy);
-                        System.out.println("You have slain:  " + enemy.getName() + "!");
-                        p.addExp(10);
-                        return;
-                    }
-                    break;
 
-                case 2: // useItem
-                    useItem(p);
-                    break;
+        combatMusic = SoundManager.playMusic("/resources/battle.wav");
 
-                case 3: // Equipment system for Armor and Weapon
-                    equipItem(p);
-                    break;
+        gameScreen.setNewLog("Combat Started! A wild " + enemy.getName().replace("###FINAL_BOSS### ", "") + " appears!");
+        gameScreen.displayMessage("Enemy HP: " + enemy.getHp() + ".\nChoose your action:");
+        gameScreen.updateStatsDisplay();
 
-                case 4: // Inventory
-                    p.showInventory();
-                    System.out.println("Press Enter to continue.....");
-                    sc.nextLine(); sc.nextLine();
-                    break;
 
-                case 5: // run system
-                    int valoare = rand.nextInt(100) + 1;
-                    if (valoare <= escapeChance) {
-                        System.out.println("You managed to escape from fight!");
-                        return;
-                    } else {
-                        System.out.println("You tried to run,but you got stuck in the fight!");
-                        escapeChance -= 20;
-                        if (escapeChance < 10) escapeChance = 10;
-                        consumesShift = true;
-                    }
-                    break;
+        this.backToCombatMenuListener = e -> {
+            gameScreen.displayMessage("Canceled selection. Choose your action:");
+            setupCombatButtons();
+        };
 
-                default:
-                    System.out.println("Invalid option.");
-                    continue;
+        setupCombatButtons();
+    }
+
+    private void setupCombatButtons() {
+        gameScreen.setChoiceButtons(true);
+
+        JButton btnAttack = new JButton("Attack");
+        btnAttack.addActionListener(e -> handleAttack());
+        gameScreen.setChoiceButton(1, btnAttack);
+
+        JButton btnItem = new JButton("Item");
+        btnItem.addActionListener(e -> setupCombatItemSubMenu());
+        gameScreen.setChoiceButton(2, btnItem);
+
+        JButton btnEquip = new JButton("Equip");
+        btnEquip.addActionListener(e -> setupEquipMenu());
+        gameScreen.setChoiceButton(3, btnEquip);
+
+        JButton btnRun = new JButton("Run (" + escapeChance + "%)");
+        btnRun.addActionListener(e -> handleRun());
+        gameScreen.setChoiceButton(4, btnRun);
+
+        gameScreen.updateChoicePanel();
+    }
+
+
+    private void handleAttack() {
+        SoundManager.playSound("/resources/swordslash.wav");
+
+        int damageDealt = currentPlayer.attack(enemy);
+        String message = currentPlayer.getName() + " attacks " + enemy.getName().replace("###FINAL_BOSS### ", "") + " for " + damageDealt + " damage!";
+        String message1 = "Enemy HP: " + enemy.getHp();
+
+        if (enemy.isDead()) {
+            handleVictory(message);
+            return;
+        }
+
+        handleEnemyTurn(message + "  " + message1);
+
+    }
+
+    private void handleEnemyTurn(String playerActionMessage) {
+        if (playerActionMessage != null) {
+            gameScreen.displayMessage(playerActionMessage);
+        }
+
+        int dmg = enemy.attack();
+        currentPlayer.takeDamage(dmg);
+        String enemyMessage = enemy.getName().replace("###FINAL_BOSS### ", "") + " attacks you for " + dmg + " damage! Your HP: " + currentPlayer.getHp();
+
+        gameScreen.updateStatsDisplay();
+
+        if (currentPlayer.getHp() <= 0) {
+            handleDefeat(enemyMessage);
+        } else {
+            gameScreen.displayMessage(enemyMessage + "\n\nChoose your next action:");
+            setupCombatButtons();
+        }
+    }
+
+
+    private int calculateManaRegen() {
+        return (currentPlayer.getDexterity()) * 10;
+    }
+
+
+    private void handleVictory(String playerActionMessage) {
+
+
+        if (enemy.getName().contains("###FINAL_BOSS###")) {
+            gameScreen.displayMessage(playerActionMessage + "\n\nYOU HAVE DEFEATED THE SUDOKU KING!");
+
+
+            if (combatMusic != null) {
+                SoundManager.stopMusic(combatMusic);
             }
 
+            gameScreen.showCredits();
+            return;
+        }
 
-            if (consumesShift && !enemy.isDead()) {
-                int dmg = enemy.attack();
-                System.out.println(enemy.getName() + "ﺤ══════ι▭▭༼ຈل͜ຈ༽"+" attacks you for " + dmg + " damage!");
-                p.takeDamage(dmg);
 
-                if (p.getHp() <= 0) {
-                    System.out.println(RED+"""
-                        
-                        
-                        ▗▖  ▗▖  ▗▄▖   ▗▖  ▗▖    ▗▄▖    ▗▄▄▖  ▗▄▄▄▖     ▗▄▄▄     ▗▄▄▄▖   ▗▄▖         ▗▄▄▄
-                         ▝▚▞▘▐▌  ▐▌ ▐▌  ▐▌   ▐▌ ▐▌ ▐▌ ▐▌  ▐▌            ▐▌    █     ▐▌         ▐▌ ▐▌     ▐▌     █
-                            ▐▌  ▐▌   ▐▌▐▌  ▐▌   ▐▛▀▜▌▐▛▀▚▖▐▛▀▀▘    ▐▌    █     ▐▛▀▀▘▐▛▀▜▌    ▐▌     █
-                            ▐▌  ▝▚▄▞▘▝▚▄▞▘   ▐▌ ▐▌ ▐▌ ▐▌  ▐▙▄▄▖    ▐▙▄▄▀   ▐▙▄▄▖▐▌   ▐▌    ▐▙▄▄▀
-                        
-                        
-                        """+RESET);
-                    System.exit(0);
+        int rcoins = rand.nextInt(50);
+        currentPlayer.addcoins(rcoins);
+
+
+        int manaRegen = calculateManaRegen();
+        currentPlayer.setMana(currentPlayer.getMana() + manaRegen);
+
+        gameScreen.displayMessage(
+                playerActionMessage +
+                        "\n\nYou have slain " + enemy.getName().replace("###FINAL_BOSS### ", "") + "! Received: " + rcoins + " Coins!" +
+                        "\nMana Regenerated: " + manaRegen + " (Current Mana: " + currentPlayer.getMana() + ")"
+        );
+        endCombat();
+    }
+
+    private void handleDefeat(String lastMessage) {
+        gameScreen.displayMessage(lastMessage + "\n\nYOU DIED. Game Over.");
+
+
+        JOptionPane.showMessageDialog(
+                gameScreen.getMainGamePanel(),
+                "Game Over! Your adventure ends here.",
+                "DEFEAT",
+                JOptionPane.WARNING_MESSAGE
+        );
+
+
+        if (combatMusic != null) {
+            SoundManager.stopMusic(combatMusic);
+        }
+
+
+        JFrame gameFrame = (JFrame) SwingUtilities.getWindowAncestor(gameScreen.getMainGamePanel());
+        if (gameFrame != null) {
+            gameFrame.dispose();
+            SwingUtilities.invokeLater(MainMenu::new);
+        } else {
+            System.exit(0);
+        }
+
+    }
+
+    private void handleRun() {
+        int value = rand.nextInt(100) + 1;
+        if (value <= escapeChance) {
+            gameScreen.displayMessage("You successfully escaped the fight!");
+            endCombat();
+        } else {
+            gameScreen.displayMessage("You tried to run, but got stuck!");
+            escapeChance -= 20;
+            if (escapeChance < 10) escapeChance = 10;
+            handleEnemyTurn(null);
+        }
+    }
+
+
+    private void setupCombatItemSubMenu() {
+
+        gameScreen.setupCombatItemMenu(backToCombatMenuListener);
+
+
+        JButton btnPotion = gameScreen.getChoiceButton(1);
+        JButton btnSpell = gameScreen.getChoiceButton(2);
+
+
+        for (ActionListener al : btnPotion.getActionListeners()) {
+            btnPotion.removeActionListener(al);
+        }
+        btnPotion.addActionListener(e -> setupUsePotionMenu());
+
+
+        for (ActionListener al : btnSpell.getActionListeners()) {
+            btnSpell.removeActionListener(al);
+        }
+        btnSpell.addActionListener(e -> setupUseSpellMenu());
+
+        gameScreen.displayMessage("Choose an item type to use:");
+        gameScreen.updateChoicePanel();
+    }
+
+
+    private void setupUsePotionMenu() {
+        List<Item> inventory = currentPlayer.getInventory();
+        gameScreen.setChoiceButtons(false);
+
+        List<Item> potions = inventory.stream()
+                .filter(item -> item instanceof Potion)
+                .toList();
+
+        if (potions.isEmpty()) {
+            gameScreen.displayMessage("You have no potions! Returning to item menu.");
+            setupCombatItemSubMenu();
+            return;
+        }
+
+        gameScreen.displayMessage("Choose a potion to use:");
+
+        int buttonIndex = 1;
+
+        for (int i = 0; i < inventory.size() && buttonIndex <= 3; i++) {
+            Item item = inventory.get(i);
+            if (item instanceof Potion) {
+                JButton btnPotion = new JButton("Use " + item.getName());
+                final int originalIndex = i;
+                btnPotion.addActionListener(e -> handleUseItem(originalIndex));
+                gameScreen.setChoiceButton(buttonIndex, btnPotion);
+                buttonIndex++;
+            }
+        }
+
+        JButton btnBack = new JButton("Back");
+        btnBack.addActionListener(e -> {
+            gameScreen.displayMessage("Canceled potion selection.");
+            setupCombatItemSubMenu();
+        });
+        gameScreen.setChoiceButton(4, btnBack);
+
+        gameScreen.updateChoicePanel();
+    }
+
+    private void setupUseSpellMenu() {
+        List<Item> inventory = currentPlayer.getInventory();
+        gameScreen.setChoiceButtons(false);
+
+        List<Item> spells = inventory.stream()
+                .filter(item -> item instanceof Spell)
+                .toList();
+
+        if (spells.isEmpty()) {
+            gameScreen.displayMessage("You have no spells! Returning to item menu.");
+            setupCombatItemSubMenu();
+            return;
+        }
+
+        gameScreen.displayMessage("Choose a spell to cast (Mana: " + currentPlayer.getMana() + "):");
+
+        int buttonIndex = 1;
+
+        for (int i = 0; i < inventory.size() && buttonIndex <= 3; i++) {
+            Item item = inventory.get(i);
+            if (item instanceof Spell s) {
+                String btnText = s.getName() + " (DMG: " + s.getDamage() + ", Cost: " + s.getManaCost() + ")";
+                JButton btnSpell = new JButton(btnText);
+
+
+                if (currentPlayer.getMana() < s.getManaCost()) {
+                    btnSpell.setEnabled(false);
                 }
 
-                System.out.println("Press Enter to continue.....");
-                sc.nextLine(); sc.nextLine();
+                final int originalIndex = i;
+                btnSpell.addActionListener(e -> handleUseSpell(originalIndex));
+                gameScreen.setChoiceButton(buttonIndex, btnSpell);
+                buttonIndex++;
             }
         }
+
+
+        JButton btnBack = new JButton("Back");
+        btnBack.addActionListener(e -> {
+            gameScreen.displayMessage("Canceled spell selection.");
+            setupCombatItemSubMenu();
+        });
+        gameScreen.setChoiceButton(4, btnBack);
+
+        gameScreen.updateChoicePanel();
     }
 
 
-    private void showInterface(Player p, Mob enemy) {
-
-        String RED = "\u001B[31m";
-        String GREEN = "\u001B[32m";
-        String YELLOW = "\u001B[33m";
-        String RESET = "\u001B[0m";
-
-        if(p.getHp()>=66&&p.getHp()<=1000)
-        {
-            clearScreen();
-            System.out.println("+----------------------+");
-            System.out.println("| HP: " + GREEN +p.getHp()+RESET + "/100          |");
-            System.out.println("| Mana: " + p.getMana() + "/100       |");
-            System.out.println("| Exp: " + p.getExp() + "            |");
-            System.out.println("| Weapon: " + ((p.equippedWeapon != null) ? p.equippedWeapon.getName() : "No Weapon") + " |");
-            System.out.println("| Armor: " + ((p.equippedArmor != null) ? p.equippedArmor.getName() : "No Armor") + " |");
-            System.out.println("+----------------------+");
-
-            System.out.println("\nEvent: You are fighting:  " + enemy.getName() + " HP: " + enemy.getHp());
-            System.out.println("1. Attack");
-            System.out.println("2. Use item");
-            System.out.println("3. Equip Armor/Weapon");
-            System.out.println("4. Inventory");
-            System.out.println("5. Run");
-            System.out.print("Choose: ");
-        }else if(p.getHp()>=33&&p.getHp()<=66)
-        {
-            clearScreen();
-            System.out.println("+----------------------+");
-            System.out.println("| HP: " + YELLOW +p.getHp()+RESET + "/100          |");
-            System.out.println("| Mana: " + p.getMana() + "/100       |");
-            System.out.println("| Exp: " + p.getExp() + "            |");
-            System.out.println("| Weapon: " + ((p.equippedWeapon != null) ? p.equippedWeapon.getName() : "No Weapon") + " |");
-            System.out.println("| Armor: " + ((p.equippedArmor != null) ? p.equippedArmor.getName() : "No Armor") + " |");
-            System.out.println("+----------------------+");
-
-            System.out.println("\nEvent: You are fighting: " + enemy.getName() + " HP: " + enemy.getHp());
-            System.out.println("1. Attack");
-            System.out.println("2. Use item");
-            System.out.println("3. Equip Armor/Weaponi");
-            System.out.println("4. Inventory");
-            System.out.println("5. Run");
-            System.out.print("Choose: ");
-        }else if(p.getHp()<=33)
-        {
-            clearScreen();
-            System.out.println("+----------------------+");
-            System.out.println("| HP: " + RED +p.getHp()+RESET + "/100          |");
-            System.out.println("| Mana: " + p.getMana() + "/100       |");
-            System.out.println("| Exp: " + p.getExp() + "            |");
-            System.out.println("| Weapon: " + ((p.equippedWeapon != null) ? p.equippedWeapon.getName() : "No Weapon") + " |");
-            System.out.println("| Armor: " + ((p.equippedArmor != null) ? p.equippedArmor.getName() : "No Armor") + " |");
-            System.out.println("+----------------------+");
-
-            System.out.println("\nEvent: You are fighting: " + enemy.getName() + " HP: " + enemy.getHp());
-            System.out.println("1. Attack");
-            System.out.println("2. Use item");
-            System.out.println("3. Equip Armor/Weapon");
-            System.out.println("4. Inventory");
-            System.out.println("5. Run");
-            System.out.print("Choose: ");
-        }
-
-    }
+    private void handleUseSpell(int itemIndex) {
+        List<Item> inventory = currentPlayer.getInventory();
+        Spell spellToUse = (Spell) inventory.get(itemIndex);
 
 
-    private void clearScreen() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
-    }
-
-    private void useItem(Player p) {
-        Scanner sc = new Scanner(System.in);
-        if (p.getInventory().isEmpty()) {
-            System.out.println("Inventory is empty!");
+        if (currentPlayer.getMana() < spellToUse.getManaCost()) {
+            gameScreen.displayMessage("Not enough mana to cast " + spellToUse.getName() + "! Returning to spell menu.");
+            setupUseSpellMenu();
             return;
         }
 
-        p.showInventory();
-        System.out.print("Choose a item! (number): ");
-        int index = sc.nextInt() - 1;
+        enemy.takeDamage(spellToUse.getDamage());
 
-        if (index >= 0 && index < p.getInventory().size()) {
-            Item item = p.getInventory().get(index);
-            if (item instanceof Potion) {
-                item.use(p);
-                p.getInventory().remove(index);
-            } else {
-                System.out.println("You can only use potions!!");
-            }
-        } else {
-            System.out.println("Invalid Option.");
-        }
-    }
+        currentPlayer.setMana(currentPlayer.getMana() - spellToUse.getManaCost());
 
-    private void equipItem(Player p) {
-        Scanner sc = new Scanner(System.in);
-        if (p.getInventory().isEmpty()) {
-            System.out.println("Inventory is empty!");
+        String message = currentPlayer.getName() + " casts " + spellToUse.getName() + " for " + spellToUse.getDamage() + " damage! Mana: -" + spellToUse.getManaCost();
+        String message1 = "Enemy HP: " + enemy.getHp();
+
+        if (enemy.isDead()) {
+            handleVictory(message);
             return;
         }
 
-        p.showInventory();
-        System.out.print("Choose a item!(number): ");
-        int index = sc.nextInt() - 1;
+        handleEnemyTurn(message + " " + message1);
+    }
 
-        if (index >= 0 && index < p.getInventory().size()) {
-            Item item = p.getInventory().get(index);
-            if (item instanceof Weapon) {
-                p.equipWeapon((Weapon) item);
-            } else if (item instanceof Armor) {
-                p.equipArmor((Armor) item);
-            } else {
-                System.out.println("This item cannot be equipped!");
-            }
-        } else {
-            System.out.println("Invalid Option.");
+
+    private void handleUseItem(int itemIndex) {
+        List<Item> inventory = currentPlayer.getInventory();
+        Item itemToUse = inventory.get(itemIndex);
+
+        itemToUse.use(currentPlayer);
+        inventory.remove(itemIndex);
+
+        gameScreen.displayMessage(itemToUse.getName() + " used! " + enemy.getName().replace("###FINAL_BOSS### ", "") + " ripostes!");
+        gameScreen.updateStatsDisplay();
+
+        handleEnemyTurn(null);
+    }
+
+    private void setupEquipMenu() {
+        List<Item> inventory = currentPlayer.getInventory();
+        gameScreen.setChoiceButtons(false);
+
+        if (inventory.isEmpty()) {
+            gameScreen.displayMessage("Inventory is empty! Nothing to equip. Choose your action:");
+            setupCombatButtons();
+            return;
         }
+
+        gameScreen.displayMessage("Choose an item to equip:");
+
+        int buttonIndex = 1;
+        for (int i = 0; i < inventory.size(); i++) {
+            Item item = inventory.get(i);
+
+            if ((item instanceof Weapon || item instanceof Armor || item instanceof Spell) && buttonIndex <= 3) {
+                String type;
+                if (item instanceof Weapon) type = "WPN";
+                else if (item instanceof Armor) type = "ARM";
+                else type = "SPL"; // NOU
+
+                JButton btnEquipItem = new JButton(type + ": " + item.getName());
+                final int originalIndex = i;
+                btnEquipItem.addActionListener(e -> handleEquipItem(originalIndex));
+                gameScreen.setChoiceButton(buttonIndex, btnEquipItem);
+                buttonIndex++;
+            }
+        }
+
+        JButton btnBack = new JButton("Back");
+        btnBack.addActionListener(backToCombatMenuListener);
+        gameScreen.setChoiceButton(4, btnBack);
+
+        gameScreen.updateChoicePanel();
+    }
+
+    private void handleEquipItem(int itemIndex) {
+        List<Item> inventory = currentPlayer.getInventory();
+        Item itemToEquip = inventory.get(itemIndex);
+
+        itemToEquip.use(currentPlayer);
+
+        gameScreen.displayMessage(itemToEquip.getName() + " equipped! " + enemy.getName().replace("###FINAL_BOSS### ", "") + " ripostes!");
+        gameScreen.updateStatsDisplay();
+
+        handleEnemyTurn(null);
+    }
+
+    private void endCombat() {
+
+        SoundManager.stopMusic(combatMusic);
+
+
+        Clip newBackgroundClip = SoundManager.playMusic("/resources/Song1.wav");
+
+
+        gameScreen.setGameBackgroundClip(newBackgroundClip);
+
+        gameScreen.setupMainMenuButtons();
     }
 }

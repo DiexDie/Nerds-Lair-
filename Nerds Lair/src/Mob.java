@@ -1,10 +1,10 @@
 import java.util.Random;
 
 public class Mob {
-    private String name;
+    private final String name;
     private int hp;
-    private int attackMin;
-    private int attackMax;
+    private final int attackMin;
+    private final int attackMax;
 
     public Mob(String name, int hp, int attackMin, int attackMax) {
         this.name = name;
@@ -24,7 +24,18 @@ public class Mob {
 
     public int attack() {
         Random rand = new Random();
-        return rand.nextInt(attackMax - attackMin + 1) + attackMin;
+
+
+        int range = attackMax - attackMin + 1;
+
+
+
+        if (range <= 0) {
+            range = 1;
+        }
+
+
+        return rand.nextInt(range) + attackMin;
     }
 
     @Override

@@ -1,13 +1,13 @@
 public class Warrior extends Player {
     public Warrior(String name) {
-        super(name, 100, 40, 2);
+        super(name, 100, 100, 2,PlayerClass.WARRIOR);
     }
 
     @Override
-    public void attack(Mob m) {
+    public int attack(Mob m) {
         int damage = 20;
         if (equippedWeapon != null) damage += equippedWeapon.getDamageBoost();
         m.takeDamage(damage);
-        System.out.println(" ∩༼˵☯‿☯˵༽つ¤=[]:::::>  " + name + " attacks " + m.getName() + " and deals " + damage + " damage!");
+        return damage;
     }
 }
