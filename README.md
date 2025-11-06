@@ -38,10 +38,19 @@ The game soft-resets to the main menu upon defeat, rather than closing the appli
 **ASSETS**: Generated with Gemini!
 
 
-## Preview
+## MainMenu
 
-![Main Menu](https://raw.githubusercontent.com/DiexDie/Nerds-Lair/main/src/resources/Preview/mainmenu.png)
+![MainMenu](https://github.com/DiexDie/Nerds-Lair-/blob/main/Nerds%20Lair/src/resources/Preview/mainmenu.png)
 
+
+## CharacterSelection
+
+![MainMenu](https://github.com/DiexDie/Nerds-Lair-/blob/main/Nerds%20Lair/src/resources/Preview/cselection.png)
+
+
+## GUI
+
+![MainMenu](https://github.com/DiexDie/Nerds-Lair-/blob/main/Nerds%20Lair/src/resources/Preview/gui.png)
 
 
 
