@@ -41,7 +41,7 @@ public class MainMenu {
         menuframe.setVisible(true);
 
 
-        backgroundMusic = SoundManager.playMusic("Song1.wav");
+        backgroundMusic = SoundManager.playMusic("Sounds/Song1.wav");
     }
 
 

@@ -9,7 +9,7 @@ public class CharacterBackgroundPanel extends JPanel {
 
     public CharacterBackgroundPanel() {
         try {
-            URL imageUrl = getClass().getResource("/resources/CharacterSelection.png");
+            URL imageUrl = getClass().getResource("/Images/CharacterSelection.png");
             if (imageUrl != null) {
                 backgroundImage = ImageIO.read(imageUrl);
             } else {

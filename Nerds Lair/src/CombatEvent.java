@@ -64,7 +64,7 @@ public class CombatEvent extends Event {
         }
 
 
-        combatMusic = SoundManager.playMusic("/resources/battle.wav");
+        combatMusic = SoundManager.playMusic("/Sounds/battle.wav");
 
         gameScreen.setNewLog("Combat Started! A wild " + enemy.getName().replace("###FINAL_BOSS### ", "") + " appears!");
         gameScreen.displayMessage("Enemy HP: " + enemy.getHp() + ".\nChoose your action:");
@@ -103,7 +103,7 @@ public class CombatEvent extends Event {
 
 
     private void handleAttack() {
-        SoundManager.playSound("/resources/swordslash.wav");
+        SoundManager.playSound("/Sounds/swordslash.wav");
 
         int damageDealt = currentPlayer.attack(enemy);
         String message = currentPlayer.getName() + " attacks " + enemy.getName().replace("###FINAL_BOSS### ", "") + " for " + damageDealt + " damage!";
@@ -421,7 +421,7 @@ public class CombatEvent extends Event {
         SoundManager.stopMusic(combatMusic);
 
 
-        Clip newBackgroundClip = SoundManager.playMusic("/resources/Song1.wav");
+        Clip newBackgroundClip = SoundManager.playMusic("/Sounds/Song1.wav");
 
 
         gameScreen.setGameBackgroundClip(newBackgroundClip);

@@ -8,13 +8,13 @@ public class CreditsForm {
     private final JFrame gameFrameToDispose;
     private final Clip finalMusicClip;
 
-    private static final String ICON_PATH = "/edire.png";
+    private static final String ICON_PATH = "/Images/edire.png";
     private static final int ICON_SIZE = 250;
 
     public CreditsForm(JFrame gameFrameToDispose) {
         this.gameFrameToDispose = gameFrameToDispose;
 
-        finalMusicClip = SoundManager.playMusic("credits.wav");
+        finalMusicClip = SoundManager.playMusic("Sounds/credits.wav");
 
         creditsPanel = new JPanel();
         creditsPanel.setLayout(new BorderLayout());

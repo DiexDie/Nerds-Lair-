@@ -144,7 +144,7 @@ public class ChestEvent extends Event {
         if (previousBackgroundClip != null) {
             SoundManager.stopMusic(previousBackgroundClip);
         }
-        chestMusic = SoundManager.playMusic("resources/chestsound.wav");
+        chestMusic = SoundManager.playMusic("Sounds/chestsound.wav");
 
         gameScreen.setNewLog(description);
         gameScreen.displayMessage("The Chest opens....");
@@ -239,7 +239,7 @@ public class ChestEvent extends Event {
             SoundManager.stopMusic(chestMusic);
 
 
-            Clip newBackgroundClip = SoundManager.playMusic("resources/Song1.wav");
+            Clip newBackgroundClip = SoundManager.playMusic("Sounds/Song1.wav");
 
 
             gameScreen.setGameBackgroundClip(newBackgroundClip);

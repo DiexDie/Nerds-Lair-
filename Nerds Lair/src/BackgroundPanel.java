@@ -9,7 +9,7 @@ public class BackgroundPanel extends JPanel {
 
     public BackgroundPanel() {
         try {
-            URL imageUrl = getClass().getResource("/resources/mainmenubb.png");
+            URL imageUrl = getClass().getResource("/Images/mainmenubb.png");
             if (imageUrl != null) {
                 backgroundImage = ImageIO.read(imageUrl);
             } else {

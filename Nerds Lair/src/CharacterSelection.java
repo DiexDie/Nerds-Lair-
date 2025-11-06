@@ -50,7 +50,7 @@ public class CharacterSelection {
             checkFormValidity();
         });
 
-        backgroundMusic = SoundManager.playMusic("Song1.wav");
+        backgroundMusic = SoundManager.playMusic("Sounds/Song1.wav");
 
         warriorSelectButton.addActionListener(e -> {
             selectedClass = "Warrior";

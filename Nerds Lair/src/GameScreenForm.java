@@ -48,7 +48,7 @@ public class GameScreenForm {
 
         applyActiveCheats(player);
 
-        gameBackgroundClip = SoundManager.playMusic("Song1.wav");
+        gameBackgroundClip = SoundManager.playMusic("Sounds/Song1.wav");
 
 
         Font statFont = new Font("ThaleahFat", Font.PLAIN, 20);
@@ -389,7 +389,7 @@ public class GameScreenForm {
 
         hpIconLabel = new JLabel();
         try {
-            ImageIcon hpIcon = new ImageIcon(getClass().getResource("/hb.png"));
+            ImageIcon hpIcon = new ImageIcon(getClass().getResource("/Images/hb.png"));
             if (hpIcon.getImage() != null) {
                 Image img = hpIcon.getImage();
                 Image scaledImg = img.getScaledInstance(barIconWidth, barIconHeight, Image.SCALE_SMOOTH);
@@ -415,7 +415,7 @@ public class GameScreenForm {
 
         manaIconLabel = new JLabel();
         try {
-            ImageIcon manaIcon = new ImageIcon(getClass().getResource("/mb.png"));
+            ImageIcon manaIcon = new ImageIcon(getClass().getResource("/Images/mb.png"));
             if (manaIcon.getImage() != null) {
                 Image img = manaIcon.getImage();
                 Image scaledImg = img.getScaledInstance(barIconWidth, barIconHeight, Image.SCALE_SMOOTH);
@@ -435,7 +435,7 @@ public class GameScreenForm {
 
         coinIconLabel = new JLabel();
         try {
-            ImageIcon coinIcon = new ImageIcon(getClass().getResource("/GOLD.png"));
+            ImageIcon coinIcon = new ImageIcon(getClass().getResource("/Images/GOLD.png"));
             if (coinIcon.getImage() != null) {
                 Image img = coinIcon.getImage();
                 Image scaledImg = img.getScaledInstance(iconSize, iconSize, Image.SCALE_SMOOTH);

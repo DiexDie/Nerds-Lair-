@@ -10,7 +10,7 @@ public class GameBackgroundPanel extends JPanel {
     public GameBackgroundPanel() {
         try {
 
-            URL imageUrl = getClass().getResource("/resources/GUI.png");
+            URL imageUrl = getClass().getResource("/Images/GUI.png");
             if (imageUrl != null) {
                 backgroundImage = ImageIO.read(imageUrl);
             } else {
